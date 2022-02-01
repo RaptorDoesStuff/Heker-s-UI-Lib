@@ -20,7 +20,8 @@ GENV.huiCreateGui = function(config)
         GUI_DATA = {
             Style = config.Style or huiStyleDefault,
             Tabs = {},
-            TabsN = 0
+            TabsN = 0,
+            InitTab = config.InitialTab or 1
         },
         AddTab = function(self,name)
             self.GUI_DATA.TabsN += 1
