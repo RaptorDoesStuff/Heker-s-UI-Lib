@@ -18,7 +18,7 @@ GENV.huiStyleLight = {}
 GENV.huiCreateGui = function(config)
     return {
         GUI_DATA = {
-            Style = config.Style or huiStyleDefault
+            Style = config.Style or huiStyleDefault,
             Tabs = {},
             TabsN = 0
         },
