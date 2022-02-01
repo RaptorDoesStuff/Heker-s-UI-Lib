@@ -1,9 +1,4 @@
 local GENV = getgenv()
-local MakeConfigGetter = function(c)
-    return function(v,e)
-        return c[v] == nil and e or v
-    end
-end
 local rgb = Color3.fromRGB
 local HttpGet = function(url)
     return syn.request({Url=url,Method="GET"}).Body
@@ -21,10 +16,9 @@ GENV.huiStyleBlackandRed = {}
 GENV.huiStyleJetBlack = {}
 GENV.huiStyleLight = {}
 GENV.huiCreateGui = function(config)
-    local gcv = MakeConfigGetter(config)
     return {
         GUI_DATA = {
-            Style = gcv("Style",huiStyleDefault),
+            Style = config.Style or huiStyleDefault
             Tabs = {},
             TabsN = 0
         },
