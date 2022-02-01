@@ -216,11 +216,11 @@ local SetTabsVisible = function(v)
     return function()
     if v then
         for _, tab in ipairs(TabsArr) do
-            TweenService:Create(tab.Instance,TweenBar,{Position=UDim2.new(UDim.new(0,286),tab.Position.Y)}):Play()
+            TweenService:Create(tab.Instance,TweenBar,{Position=UDim2.new(UDim.new(0,286),tab.Instance.Position.Y)}):Play()
         end
     else
         for _, tab in ipairs(TabsArr) do
-            TweenService:Create(tab.Instance,TweenBar,{Position=UDim2.new(UDim.new(0,190),tab.Position.Y)}):Play()
+            TweenService:Create(tab.Instance,TweenBar,{Position=UDim2.new(UDim.new(0,190),tab.Instance.Position.Y)}):Play()
         end
     end
     end
