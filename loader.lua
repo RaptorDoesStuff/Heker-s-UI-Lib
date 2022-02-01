@@ -229,7 +229,7 @@ local AddTab = function(n,i)
     local TabButton = Instance.new("TextButton")
     TabButton.Name = string.format("TabButton%d",i)
     TabButton.Parent = MainFrame
-    TabButton.BackgroundColor3 = guidata.Style.InnerFrame
+    TabButton.BackgroundColor3 = guidata.Style.UnselectedTab
     TabButton.BorderSizePixel = 0
     TabButton.Position = UDim2.new(0, 190, 0, 68+40*(i-1))
     TabButton.Size = UDim2.new(0, 90, 0, 34)
@@ -241,6 +241,13 @@ local AddTab = function(n,i)
     TabButton.TextWrapped = true
     return TabButton
 end
+local SelectedTab = TabsArr[guidata.InitTab]
+local SelectTab = function(t)
+    TabsArr[t].BackgroundColor3 = guidata.Style.InnerFrame
+    SelectedTab.BackgroundColor3 = guidata.Style.UnselectedTab
+    SelectedTab = TabsArr[t]
+end
+SelectTab(guidata.InitTab)
 
 -- Start Loader
 TweenService:Create(LoaderFrame,TweenOut,{Position=UDim2.new(0.5,0,0.5,0)}):Play()
