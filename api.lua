@@ -1,12 +1,9 @@
 local GENV = getgenv()
 local rgb = Color3.fromRGB
-local HttpGet = function(url)
-    return syn.request({Url=url,Method="GET"}).Body
-end
 GENV.huiStyleDefault = {
     GuiBackground = rgb(55,55,70),
     InnerFrame = rgb(75,75,85),
-    UnselectedTab = rgb(45,45,60),
+    Button = rgb(45,45,60),
     LoaderBarTop = rgb(0,175,0),
     LoaderBarBack = rgb(45,45,60),
     TextColor = rgb(255,255,255),
@@ -15,23 +12,37 @@ GENV.huiStyleDefault = {
 GENV.huiStyleBlackandRed = {}
 GENV.huiStyleJetBlack = {}
 GENV.huiStyleLight = {}
+GENV.huiEnumButton = 1
 GENV.huiCreateGui = function(config)
     return {
         GUI_DATA = {
             Style = config.Style or huiStyleDefault,
             Tabs = {},
             TabsN = 0,
-            InitTab = config.InitialTab or 1
+            InitTab = config.InitialTab or 1,
+            Title = config.Title or "you forgot the gui title lol"
         },
-        AddTab = function(self,name)
+        CreateTab = function(self,name)
             self.GUI_DATA.TabsN += 1
             self.GUI_DATA.Tabs[self.GUI_DATA.TabsN] = {
                 Name = name,
-                Elements = {}
+                Elements = {},
+                ElementsN = 0
+            }
+            Tab = self.GUI_DATA.Tabs[self.GUI_DATA.TabsN]
+            return {
+                AddButton = function(name,func)
+                    Tab.ElementsN += 1
+                    Tab.Elements[Tab.ElementsN] = {
+                        Type = huiEnumButton,
+                        Name = name,
+                        OnPressed = func
+                    }
+                end
             }
         end,
         Start = function(self)
-            loadstring(HttpGet("https://raw.githubusercontent.com/RaptorDoesStuff/Heker-s-UI-Lib/main/loader.lua"))(self.GUI_DATA)
+            loadstring(syn.request({Url="https://raw.githubusercontent.com/RaptorDoesStuff/Heker-s-UI-Lib/main/loader.lua",Method="GET"}).Body)(self.GUI_DATA)
         end
     }
 end
