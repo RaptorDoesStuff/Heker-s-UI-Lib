@@ -72,7 +72,7 @@ NameLabel.BorderSizePixel = 0
 NameLabel.Position = UDim2.new(0.0733333379, 0, 0.0179487169, 0)
 NameLabel.Size = UDim2.new(0, 206, 0, 21)
 NameLabel.Font = Enum.Font.Jura
-NameLabel.Text = "among us among us among us"
+NameLabel.Text = guidata.Title
 NameLabel.TextColor3 = guidata.Style.TextColor
 NameLabel.TextSize = 15.000
 NameLabel.TextStrokeTransparency = 0.000
@@ -201,7 +201,7 @@ local SetLoaderVal = function(p,t) -- progress (0.69), text to show (e.g. loadin
     end
     wait(0.5)
 end
-local ls = {"Loading tabs","Loading buttons","Creating exit + minimize button events","Making GUI draggable","Loading complete"}
+local ls = {"Loading tabs and elements","Creating exit + minimize button events","Making GUI draggable","Loading complete"}
 DoingLabel.Text = table.remove(ls,1)
 local lsi = #ls
 local lsv = 1
@@ -231,8 +231,7 @@ end
 local AddTab = function(n,i)
     local TabButton = Instance.new("TextButton")
     TabButton.Name = string.format("TabButton%d",i)
-    TabButton.Parent = MainFrame
-    TabButton.BackgroundColor3 = guidata.Style.UnselectedTab
+    TabButton.BackgroundColor3 = guidata.Style.Button
     TabButton.BorderSizePixel = 0
     TabButton.Position = UDim2.new(0, 190, 0, 68+40*(i-1))
     TabButton.Size = UDim2.new(0, 90, 0, 34)
@@ -242,31 +241,63 @@ local AddTab = function(n,i)
     TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     TabButton.TextSize = 14.000
     TabButton.TextWrapped = true
+    TabButton.Parent = MainFrame
     return TabButton
 end
-local SelectedTab = Instance.new("Frame") -- placeholder frame
+local SelectedTab = {Elements={},Instance={}} -- placeholder
 local SelectTab = function(t)
-    TabsArr[t].Instance.BackgroundColor3 = guidata.Style.InnerFrame
-    SelectedTab.BackgroundColor3 = guidata.Style.UnselectedTab
-    SelectedTab = TabsArr[t].Instance
+    SelectedTab.Instance.BackgroundColor3 = guidata.Style.Button
+    for i, elm in ipairs(SelectedTab.Elements) do
+        elm.Instance.Visible = false
+    end
+    SelectedTab = TabsArr[t]
+    SelectedTab.Instance.BackgroundColor3 = guidata.Style.InnerFrame
+    for i, elm in ipairs(SelectedTab.Elements) do
+        elm.Instance.Visible = true
+    end
+end
+local CreateButton = function(n,i,f)
+    local x = bit32.band(i,1) == 1 and 155 or 20
+    local y = 60 + 40 * math.floor(i/2)
+    local Button1 = Instance.new("TextButton")
+    local UICorner = Instance.new("UICorner")
+    Button1.Name = "button"
+    Button1.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    Button1.BorderSizePixel = 0
+    Button1.Position = UDim2.new(0, x, 0, y)
+    Button1.Size = UDim2.new(0, 125, 0, 32)
+    Button1.Font = Enum.Font.Nunito
+    Button1.Text = n
+    Button1.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button1.TextSize = 14.000
+    Button1.TextWrapped = true
+    UICorner.CornerRadius = UDim.new(0, 7)
+    UICorner.Parent = Button1
+    Button1.MouseButton1Down:Connect(f)
+    Button1.Visible = false
+    Button1.Parent = MainFrame
+    return Button1
 end
 
 -- Start Loader
 TweenService:Create(LoaderFrame,TweenOut,{Position=UDim2.new(0.5,0,0.5,0)}):Play()
 wait(1.5)
 
--- Load tab buttons
+-- Load tabs and elements
+local ElmSwitch = {CreateButton}
 for i, tab in ipairs(TabsArr) do
     tab.Instance = AddTab(tab.Name,i)
     tab.Instance.MouseButton1Down:Connect(function()
         if SelectedTab == tab.Instance then return end
         SelectTab(i)
     end)
+    for i, elm in ipairs(tab.Elements) do
+        elm.Instance = ElmSwitch[elm.Type](elm.Name,i-1,elm.OnPressed)
+    end
 end
 SelectTab(guidata.InitTab)
 TabMouseDetector.MouseEnter:Connect(SetTabsVisible(true))
 TabMouseDetector.MouseLeave:Connect(SetTabsVisible(false))
-IncLoader()
 IncLoader()
 
 -- Exit + minimize button events
