@@ -1,9 +1,25 @@
 loadstring(syn.request({Url="https://raw.githubusercontent.com/RaptorDoesStuff/Heker-s-UI-Lib/main/api.lua",Method="GET"}).Body)()
 local gui = huiCreateGui({
     Style = huiStyleDefault,
-    InitialTab = 1
+    InitialTab = 1,
+    Title = "testing gui"
 })
-gui:AddTab("Home")
-gui:AddTab("Scripts")
-gui:AddTab("Settings")
+local hometab = gui:CreateTab("Home")
+hometab.AddButton("button 1",function()
+    rconsoleprint("clicked button 1\n")
+end)
+hometab.AddButton("button 2",function()
+    rconsoleprint("clicked button 2\n")
+end)
+hometab.AddButton("among us",function()
+    rconsoleprint(":skull:\n")
+end)
+local scriptstab = gui:CreateTab("Scripts")
+scriptstab.AddButton("thing",function()
+    rconsoleprint("script or something\n")
+end)
+scriptstab.AddButton("press me to clear console",function()
+    rconsoleclear()
+end)
+local settingstab = gui:CreateTab("Settings")
 gui:Start()
