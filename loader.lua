@@ -311,12 +311,14 @@ MainFrame.InputEnded:Connect(function(input)
         DraggingUI = false
     end
 end)
+local FPS = 0
 local GotoPos
 local StartDragFunc = function()
     if GotoPos ~= nil then return end
-    game:GetService("RunService").RenderStepped:Connect(function()
+    game:GetService("RunService").RenderStepped:Connect(function(s)
+        FPS = 1/s
         if GuiMinimized then return end
-        MainFrame.Position = MainFrame.Position:Lerp(GotoPos,0.1)
+        MainFrame.Position = MainFrame.Position:Lerp(GotoPos,0.1 / (FPS / 60))
     end)
 end
 UserInputService.InputChanged:Connect(function(input)
