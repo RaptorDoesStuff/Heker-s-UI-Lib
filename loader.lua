@@ -201,7 +201,7 @@ local SetLoaderVal = function(p,t) -- progress (0.69), text to show (e.g. loadin
     end
     wait(0.5)
 end
-local ls = {"Loading tab buttons","Creating exit + minimize button events","Making GUI draggable","Loading complete"}
+local ls = {"Loading tabs","Loading buttons","Creating exit + minimize button events","Making GUI draggable","Loading complete"}
 DoingLabel.Text = table.remove(ls,1)
 local lsi = #ls
 local lsv = 1
@@ -212,17 +212,20 @@ end
 local TweenOut = TweenInfo.new(1.5,5,1)
 local TweenIn = TweenInfo.new(1.5,5,0)
 local TabsArr = guidata.Tabs
+local DraggingUI = false
 local SetTabsVisible = function(v)
     return function()
-    if v then
-        for _, tab in ipairs(TabsArr) do
-            TweenService:Create(tab.Instance,TweenBar,{Position=UDim2.new(UDim.new(0,286),tab.Instance.Position.Y)}):Play()
+        if not DraggingUI and v then
+            for _, tab in ipairs(TabsArr) do
+                TweenService:Create(tab.Instance,TweenBar,{Position=UDim2.new(UDim.new(0,286),tab.Instance.Position.Y)}):Play()
+                wait(0.2)
+            end
+        else
+            for _, tab in ipairs(TabsArr) do
+                wait(0.2)
+                TweenService:Create(tab.Instance,TweenBar,{Position=UDim2.new(UDim.new(0,190),tab.Instance.Position.Y)}):Play()
+            end
         end
-    else
-        for _, tab in ipairs(TabsArr) do
-            TweenService:Create(tab.Instance,TweenBar,{Position=UDim2.new(UDim.new(0,190),tab.Instance.Position.Y)}):Play()
-        end
-    end
     end
 end
 local AddTab = function(n,i)
@@ -241,24 +244,29 @@ local AddTab = function(n,i)
     TabButton.TextWrapped = true
     return TabButton
 end
-local SelectedTab = TabsArr[guidata.InitTab]
+local SelectedTab = Instance.new("Frame") -- placeholder frame
 local SelectTab = function(t)
-    TabsArr[t].BackgroundColor3 = guidata.Style.InnerFrame
+    TabsArr[t].Instance.BackgroundColor3 = guidata.Style.InnerFrame
     SelectedTab.BackgroundColor3 = guidata.Style.UnselectedTab
-    SelectedTab = TabsArr[t]
+    SelectedTab = TabsArr[t].Instance
 end
-SelectTab(guidata.InitTab)
 
 -- Start Loader
 TweenService:Create(LoaderFrame,TweenOut,{Position=UDim2.new(0.5,0,0.5,0)}):Play()
 wait(1.5)
 
--- Load  tab buttons
+-- Load tab buttons
 for i, tab in ipairs(TabsArr) do
     tab.Instance = AddTab(tab.Name,i)
+    tab.Instance.MouseButton1Down:Connect(function()
+        if SelectedTab == tab.Instance then return end
+        SelectTab(i)
+    end)
 end
+SelectTab(guidata.InitTab)
 TabMouseDetector.MouseEnter:Connect(SetTabsVisible(true))
 TabMouseDetector.MouseLeave:Connect(SetTabsVisible(false))
+IncLoader()
 IncLoader()
 
 -- Exit + minimize button events
@@ -291,7 +299,6 @@ local UserInputService = game:GetService("UserInputService")
 local v3tou2 = function(v3) -- vector3 to udim2
     return UDim2.new(0,v3.X,0,v3.Y)
 end
-local DraggingUI = false
 local ClickOffset
 MainFrame.InputBegan:Connect(function(input)
     if not GuiMinimized and input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -304,9 +311,18 @@ MainFrame.InputEnded:Connect(function(input)
         DraggingUI = false
     end
 end)
+local GotoPos
+local StartDragFunc = function()
+    if GotoPos ~= nil then return end
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if GuiMinimized then return end
+        MainFrame.Position = MainFrame.Position:Lerp(GotoPos,0.1)
+    end)
+end
 UserInputService.InputChanged:Connect(function(input)
     if DraggingUI then
-        MainFrame.Position = v3tou2(input.Position) - ClickOffset
+        StartDragFunc()
+        GotoPos = v3tou2(input.Position) - ClickOffset
     end
 end)
 IncLoader()
